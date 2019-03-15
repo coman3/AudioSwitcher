@@ -98,7 +98,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             _properties.TryLoadFrom(device);
         }
 
-        private void LoadAudioMeterInformation()
+        public void LoadAudioMeterInformation()
         {
             //This should be all on the COM thread to avoid any
             //weird lookups on the result COM object not on an STA Thread
@@ -125,7 +125,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
                 ClearAudioMeterInformation();
         }
 
-        private void LoadAudioEndpointVolume()
+        public void LoadAudioEndpointVolume()
         {
             //Don't even bother looking up volume for disconnected devices
             if (!State.HasFlag(DeviceState.Active))

@@ -24,7 +24,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
 
         private IMultimediaDeviceEnumerator InnerEnumerator => _innerEnumerator.Value;
 
-        public CoreAudioController(bool autoLoad = true)
+        public CoreAudioController(bool autoLoad = true, bool loadMeter = true, bool loadEndpoint = true, bool loadSession = true)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
             var innerEnumerator = ComObjectFactory.GetDeviceEnumerator();
@@ -35,11 +35,11 @@ namespace AudioSwitcher.AudioApi.CoreAudio
 
             _innerEnumerator = new ThreadLocal<IMultimediaDeviceEnumerator>(() => Marshal.GetUniqueObjectForIUnknown(_innerEnumeratorPtr) as IMultimediaDeviceEnumerator);
 
-            if (autoLoad) LoadDevices();
+            if (autoLoad) LoadDevices(loadMeter, loadEndpoint, loadSession);
 
         }
 
-        public void LoadDevices()
+        public void LoadDevices(bool loadMeter = true, bool loadEndpoint = true, bool loadSession = true)
         {
             ComThread.Invoke(() =>
             {
@@ -55,14 +55,14 @@ namespace AudioSwitcher.AudioApi.CoreAudio
                 using (var coll = new MultimediaDeviceCollection(collection))
                 {
                     foreach (var mDev in coll)
-                        CacheDevice(mDev);
+                        CacheDevice(mDev, loadMeter, loadEndpoint, loadSession);
                 }
             });
         }
 
-        public async Task LoadDevicesAsync()
+        public async Task LoadDevicesAsync(bool loadMeter = true, bool loadEndpoint = true, bool loadSession = true)
         {
-            await Task.Run(() => LoadDevices());
+            await Task.Run(() => LoadDevices(loadMeter, loadEndpoint, loadSession));
         }
 
         internal SystemEventNotifcationClient SystemEvents => _systemEvents;
@@ -184,7 +184,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             }
         }
 
-        private CoreAudioDevice CacheDevice(IMultimediaDevice mDevice)
+        private CoreAudioDevice CacheDevice(IMultimediaDevice mDevice, bool loadMeter = true, bool loadEndpoint = true, bool loadSession = true)
         {
             if (!DeviceIsValid(mDevice))
                 return null;
@@ -196,7 +196,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             if (device != null)
                 return device;
 
-            device = new CoreAudioDevice(mDevice, this);
+            device = new CoreAudioDevice(mDevice, this, false, false, false);
 
             device.StateChanged.Subscribe(OnAudioDeviceChanged);
             device.DefaultChanged.Subscribe(OnAudioDeviceChanged);

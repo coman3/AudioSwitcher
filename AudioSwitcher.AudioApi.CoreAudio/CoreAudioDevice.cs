@@ -162,7 +162,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             }
         }
 
-        internal CoreAudioDevice(IMultimediaDevice device, CoreAudioController controller)
+        internal CoreAudioDevice(IMultimediaDevice device, CoreAudioController controller, bool loadMeter = true, bool loadEndpoint = true, bool loadSession = true)
             : base(controller)
         {
             ComThread.Assert();
@@ -177,9 +177,9 @@ namespace AudioSwitcher.AudioApi.CoreAudio
 
             LoadProperties();
 
-            ReloadAudioMeterInformation();
-            ReloadAudioEndpointVolume();
-            ReloadAudioSessionController();
+            if(loadMeter) ReloadAudioMeterInformation();
+            if (loadEndpoint) ReloadAudioEndpointVolume();
+            if (loadSession) ReloadAudioSessionController();
 
             controller.SystemEvents.DeviceStateChanged
                                     .When(x => String.Equals(x.DeviceId, RealId, StringComparison.OrdinalIgnoreCase))

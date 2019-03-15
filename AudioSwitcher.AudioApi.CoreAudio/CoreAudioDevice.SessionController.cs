@@ -18,7 +18,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             _sessionController = null;
         }
 
-        private void LoadAudioSessionController()
+        public void LoadAudioSessionController()
         {
             if (_sessionController?.IsValueCreated == true)
                 return;
