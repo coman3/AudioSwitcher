@@ -196,7 +196,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             if (device != null)
                 return device;
 
-            device = new CoreAudioDevice(mDevice, this, false, false, false);
+            device = new CoreAudioDevice(mDevice, this, loadMeter, loadEndpoint, loadSession);
 
             device.StateChanged.Subscribe(OnAudioDeviceChanged);
             device.DefaultChanged.Subscribe(OnAudioDeviceChanged);
