@@ -515,17 +515,17 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             }
         }
 
-        private void ReloadAudioMeterInformation()
+        public void ReloadAudioMeterInformation()
         {
             ComThread.Invoke(LoadAudioMeterInformation);
         }
 
-        private void ReloadAudioSessionController()
+        public void ReloadAudioSessionController()
         {
             ComThread.Invoke(LoadAudioSessionController);
         }
 
-        private void ReloadAudioEndpointVolume()
+        public void ReloadAudioEndpointVolume()
         {
             ComThread.Invoke(() =>
             {
