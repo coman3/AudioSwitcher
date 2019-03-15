@@ -106,8 +106,10 @@ namespace HookingSample
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // Load all audio devices...
-            await Controller.LoadDevicesAsync();
+            await Controller.LoadDevicesAsync(false, false, false);
             // Add our designer content back, as we have finished loading
+
+            var defaultDevice = Controller.DefaultPlaybackDevice;
             Dispatcher.Invoke(() => // Use Invoke just in case (even though its not really needed in this situation)
             {
                 ApplicationGrid.IsEnabled = true;
@@ -120,7 +122,7 @@ namespace HookingSample
             });
 
             Controller.DefaultPlaybackDevice.SetAsDefault();
-
+            Controller.DefaultPlaybackDevice.LoadAudioSessionController();
             Controller.DefaultPlaybackDevice.GetCapability<IAudioSessionController>();
 
             Controller.DefaultCaptureDevice.PeakValueChanged.Subscribe(x =>

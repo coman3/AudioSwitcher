@@ -252,6 +252,12 @@ namespace AudioSwitcher.AudioApi.CoreAudio
             if (_sessionController?.Value is TCapability)
                 return (TCapability)(_sessionController?.Value as IDeviceCapability);
 
+            if(typeof(TCapability) == typeof(IAudioSessionController) && _sessionController == null)
+            {
+                LoadAudioSessionController();
+                return (TCapability)(_sessionController?.Value as IAudioSessionController);
+            }
+
             return default(TCapability);
         }
 
