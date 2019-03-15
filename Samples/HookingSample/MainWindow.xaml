@@ -14,12 +14,12 @@
     MinHeight="450"
     Closing="Window_Closing"
     >
-    <Grid>
+    <Grid x:Name="ApplicationGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Grid >
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="160"/>

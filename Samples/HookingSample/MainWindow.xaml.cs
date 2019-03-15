@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using AudioSwitcher.AudioApi;
 using AudioSwitcher.AudioApi.CoreAudio;
 using AudioSwitcher.AudioApi.Hooking;
@@ -73,16 +74,45 @@ namespace HookingSample
             }
         }
 
+        private object _loadedContent;
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
 
             Processes = new ObservableCollection<Process>();
             AudioDevices = new ObservableCollection<IDevice>();
+            Controller = new CoreAudioController(autoLoad: false);
 
-            Controller = new CoreAudioController();
+            // Signup to the loaded event, so we can start loading our audio devices once the application has displayed
+            this.Loaded += MainWindow_Loaded;
 
-            DataContext = this;
+            // Clear designer content and replace it with loading text, waiting for audio devices to initilize
+            ApplicationGrid.IsEnabled = false;
+            _loadedContent = this.Content;
+            var loadingContent = new Label()
+            {
+                Content = "Loading Audio Devices...",
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                FontSize = 16,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+            };
+            this.Content = loadingContent;
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Load all audio devices...
+            await Controller.LoadDevicesAsync();
+            // Add our designer content back, as we have finished loading
+            Dispatcher.Invoke(() => // Use Invoke just in case (even though its not really needed in this situation)
+            {
+                ApplicationGrid.IsEnabled = true;
+                this.Content = _loadedContent;
+            });
 
             Controller.AudioDeviceChanged.Subscribe(x =>
             {
@@ -100,8 +130,8 @@ namespace HookingSample
 
             Controller.DefaultPlaybackDevice.PeakValueChanged.Subscribe(x =>
             {
-                //Console.WriteLine(x.PeakValue);
-            });
+                    //Console.WriteLine(x.PeakValue);
+                });
 
             Thread.Sleep(100);
 
@@ -131,10 +161,10 @@ namespace HookingSample
             Controller.DefaultPlaybackDevice.GetCapability<IAudioSessionController>()?.SessionCreated.Subscribe(x =>
             {
                 Console.WriteLine("{0} - {1}", x.DisplayName, x.Volume);
-                //x.VolumeChanged.Subscribe(v =>
-                //{
-                //});
-            });
+                    //x.VolumeChanged.Subscribe(v =>
+                    //{
+                    //});
+                });
 
             Controller.DefaultPlaybackDevice.GetCapability<IAudioSessionController>()?.SessionDisconnected.Subscribe(x =>
             {
@@ -147,7 +177,6 @@ namespace HookingSample
 
             });
         }
-
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
