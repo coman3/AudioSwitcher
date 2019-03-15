@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using AudioSwitcher.AudioApi.CoreAudio.Interfaces;
 using AudioSwitcher.AudioApi.CoreAudio.Threading;
 using AudioSwitcher.AudioApi.Observables;
@@ -23,7 +24,7 @@ namespace AudioSwitcher.AudioApi.CoreAudio
 
         private IMultimediaDeviceEnumerator InnerEnumerator => _innerEnumerator.Value;
 
-        public CoreAudioController()
+        public CoreAudioController(bool autoLoad = true)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
             var innerEnumerator = ComObjectFactory.GetDeviceEnumerator();
@@ -34,6 +35,12 @@ namespace AudioSwitcher.AudioApi.CoreAudio
 
             _innerEnumerator = new ThreadLocal<IMultimediaDeviceEnumerator>(() => Marshal.GetUniqueObjectForIUnknown(_innerEnumeratorPtr) as IMultimediaDeviceEnumerator);
 
+            if (autoLoad) LoadDevices();
+
+        }
+
+        public void LoadDevices()
+        {
             ComThread.Invoke(() =>
             {
                 _systemEvents = new SystemEventNotifcationClient(() => InnerEnumerator);
@@ -51,6 +58,11 @@ namespace AudioSwitcher.AudioApi.CoreAudio
                         CacheDevice(mDev);
                 }
             });
+        }
+
+        public async Task LoadDevicesAsync()
+        {
+            await Task.Run(() => LoadDevices());
         }
 
         internal SystemEventNotifcationClient SystemEvents => _systemEvents;
