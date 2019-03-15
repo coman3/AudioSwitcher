@@ -122,7 +122,7 @@ namespace HookingSample
             });
 
             Controller.DefaultPlaybackDevice.SetAsDefault();
-            Controller.DefaultPlaybackDevice.LoadAudioSessionController();
+            Controller.DefaultPlaybackDevice.ReloadAudioSessionController();
             Controller.DefaultPlaybackDevice.GetCapability<IAudioSessionController>();
 
             Controller.DefaultCaptureDevice.PeakValueChanged.Subscribe(x =>
